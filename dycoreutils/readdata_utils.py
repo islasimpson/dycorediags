@@ -14,7 +14,7 @@ def read_cesm_zonalmean(filepath, datestart, dateend):
         dateend (string) = enddate for timeslice (in a normal calendar)
     """
 
-    dat = xr.open_mfdataset(filepath, coords="minimal", join="override", decode_times = True).mean("lon")
+    dat = xr.open_mfdataset(filepath, coords="minimal", join="override", decode_times = True)
 
     try:
         try:
@@ -30,7 +30,7 @@ def read_cesm_zonalmean(filepath, datestart, dateend):
         print("warning, you're reading CESM data but there's no time_bnds")
         print("make sure you're reading in what you're expecting to")
 
-    dat = dat.sel(time=slice(datestart, dateend))
+    dat = dat.sel(time=slice(datestart, dateend)).mean("lon")
 
     return dat
 
