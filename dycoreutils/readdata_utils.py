@@ -34,3 +34,17 @@ def read_cesm_zonalmean(filepath, datestart, dateend):
 
     return dat
 
+def read_zonalmean(filepath, datestart, dateend):
+    """Read in a time slice and calculate the zonal mean.
+    Args:
+        filepath (string) = location of files
+        datestart (string) = start date for timeslice (in a normal calendar)
+        dateend (string) = enddate for timeslice (in a normal calendar)
+    """
+
+    dat = xr.open_mfdataset(filepath, coords="minimal", join="override", decode_times = True)
+    dat = dat.sel(time=slice(datestart, dateend)).mean("lon")
+
+    return dat
+
+
