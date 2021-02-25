@@ -39,4 +39,56 @@ def plotqbowinds(fig, data, time, pre, ci, cmin, cmax, titlestr, x1=None, x2=Non
 
     return ax
 
+def plotddamp(fig, data, pre, expname, x1=None, x2=None, y1=None, y2=None, color=None, oplot=False, ax=None):
+    """ 
+    Plot up the Dunkerton and Delisi amplitude of the QBO.
+    Inputs:
+        fig = the figure page
+        data = the dunkerton and delisi amplitude data
+        pre = the pressure axis of data
+        expname = the name of the experiment (for legend)
+        x1 = the bottom edge of the figure (in units of fractions of the page)
+        x2 = the right edge of the figure (in units of fraction of the page)
+        y1 = the bottom edge of the figure (in units of fractions of the page)
+        y2 = the top edge of the figure ( in units of fractions of the page)
+        oplot = if True, only over plot a line
+    """
+
+    # if overplotting, check for axis input
+    if (oplot and (not ax)):
+        print("This isn't going to work.  If overplotting, specify axis")
+        sys.exit()
+
+    plt.rcParams['font.size'] = '14'
+
+    if not oplot:
+        if (x1):
+            ax = fig.add_axes([x1, y1, x2-x1, y2-y1])
+        else:
+            ax = fig.add_axes()
+
+        ax.set_ylim(-np.log10(100),-np.log10(3))
+        ax.set_yticks([-np.log10(100),-np.log10(30),-np.log10(10),-np.log10(3)])
+        ax.set_yticklabels(['100','30','10','3'])
+        ax.set_ylabel('Pressure (hPa)', fontsize=16)
+        ax.set_xlabel('Dunkerton and Delisi amplitude (ms$^{-1}$)',fontsize=16)
+        ax.set_title('QBO amplitude', fontsize=16)
+
+    
+    if (color):
+        ax.plot(np.array(data),-1.*np.log10(np.array(pre)),linewidth=3,label=expname, color=color)
+    else:
+        ax.plot(np.array(data),-1.*np.log10(np.array(pre)),linewidth=3,label=expname)
+ 
+    return ax
+
+
+
+
+
+
+
+
+
+
 
