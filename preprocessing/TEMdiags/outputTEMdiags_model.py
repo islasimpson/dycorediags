@@ -12,7 +12,8 @@ import numpy as np
 from scipy import integrate
 
 # set experiment names to process
-expname=( "sponge5", "default-sponge", "sponge5-marshian" )
+expname=[ "L70_bugfix" ]
+#expname=[ "sponge5", "defaultsponge", "sponge5-marshian" ]
 
 # set basepath which contains the flux data
 basepath="/project/cas/islas/verticalresolution/TEMdiags/"
@@ -31,8 +32,11 @@ g0=9.80665
 for iexp in expname:
 
     fpath=basepath+iexp+"/TEMdiags*.nc"
+    #fpath=basepath+"TEMdiags*.nc"
     print(fpath)
     dat = xr.open_mfdataset(fpath, coords="minimal", join="override", decode_times=True)
+    dat = dat.squeeze()
+
     latrad = np.array((dat.lat/180.)*np.pi)
     f=2.*om*np.sin(latrad[:])
 
@@ -43,7 +47,8 @@ for iexp in expname:
     uvzm = np.array(dat.UVzm)
     uwzm = np.array(dat.UWzm)
     wzm = np.array(dat.Wzm)
-    pre = np.array(dat.pre)
+    #pre = np.array(dat.pre)
+    pre = np.array(dat.ilev)
     lat = np.array(dat.lat)
 
     npre = pre.size
@@ -134,7 +139,17 @@ for iexp in expname:
               ,'units':'m/s2'})
     utendwtem = xr.DataArray(utendwtem, coords = dat.Uzm.coords, name='utendwtem',
     attrs={'long_name':'tendency of eastward wind due to TEM upward wind advection','units':'m/s2'})
-    
+
+#    uzm = uzm.rename({"ilev":"pre"})
+#    epfy = epfy.rename({"ilev":"pre"})
+#    epfz = epfz.rename({"ilev":"pre"})
+#    vtem = vtem.rename({"ilev":"pre"})
+#    wtem = wtem.rename({"ilev":"pre"})
+#    psitem = psitem.rename({"ilev":"pre"})
+#    utendepfd = utendepfd.rename({"ilev":"pre"})
+#    utendvtem = utendvtem.rename({"ilev":"pre"})
+#    utendwtem = utendwtem.rename({"ilev":"pre"})    
+
     uzm.to_netcdf(outdir+iexp+".nc")
     epfy.to_netcdf(outdir+iexp+".nc", mode="a")
     epfz.to_netcdf(outdir+iexp+".nc", mode="a")
@@ -142,8 +157,8 @@ for iexp in expname:
     wtem.to_netcdf(outdir+iexp+".nc", mode="a")
     psitem.to_netcdf(outdir+iexp+".nc", mode="a")
     utendepfd.to_netcdf(outdir+iexp+".nc", mode="a")
-    utendvtem.to_netcdf(outdir+".nc", mode="a")
-    utendwtem.to_netcdf(outdir+".nc", mode="a")
+    utendvtem.to_netcdf(outdir+iexp+".nc", mode="a")
+    utendwtem.to_netcdf(outdir+iexp+".nc", mode="a")
 
 
 
