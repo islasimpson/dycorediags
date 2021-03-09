@@ -47,6 +47,34 @@ def plotlatlogpre_to0p01(fig, data, lat, pre, ci, cmin, cmax, titlestr, x1=0.1, 
 
     return ax
 
+def plotlatlogpre_0p1to0p01(fig, data, lat, pre, ci, cmin, cmax, titlestr, x1=0.1, x2=0.9, y1=0.1, y2=0.9):
+    """
+    Plot a pressure versus latitude contour plot up to 0.01hPa.
+    """
+
+    # set up contour levels and color map
+    nlevs = (cmax-cmin)/ci + 1
+    clevs = np.arange(cmin, cmax+ci, ci)
+    mymap = mycolors.blue2red_cmap(nlevs)
+
+    plt.rcParams['font.size'] = '12'
+    
+    ax = fig.add_axes([x1, y1, x2-x1, y2-y1])
+
+    ax.contourf(lat,-1.*np.log10(pre), data, levels=clevs, cmap=mymap, extend='max')
+    ax.contour(lat,-1.*np.log10(pre), data, levels=clevs, colors='black', linewidths=0.5)
+    ax.set_ylim(-np.log10(0.1),-np.log10(0.01))
+    ax.set_yticks([-np.log10(0.1),-np.log10(0.03),-np.log10(0.01)])
+    ax.set_yticklabels(['0.1','0.03','0.01'])
+    ax.set_ylabel('Pressure (hPa)')
+    ax.set_title(titlestr, fontsize=16)
+    ax.set_xlabel('Latitude $^{\circ}$N')
+
+    return ax
+
+
+
+
 def plotlatlogpre_100to0p01(fig, data, lat, pre, ci, cmin, cmax, titlestr, x1=0.1, x2=0.9, y1=0.1, y2=0.9):
     """
     Plot a pressure versus latitude contour plot up to 0.01hPa.
