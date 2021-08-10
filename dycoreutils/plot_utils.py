@@ -16,12 +16,64 @@ def get4by4coords():
     """ positioning for 4x4 plots """
     x1 = [0.04,0.28,0.52,0.76,0.04,0.28,0.52,0.76,0.04,0.28,0.52,0.76,0.04,0.28,0.52,0.76]
     x2 = [0.22,0.46,0.7,0.94,0.22,0.46,0.7,0.94,0.22,0.46,0.7,0.94,0.22,0.46,0.7,0.94]
-    y1 = [0.8,0.8,0.8,0.8,0.59,0.59,0.59,0.59,0.38,0.38,0.38,0.38,0.17,0.17,0.17,0.17]
-    y2 = [0.95,0.95,0.95,0.95,0.74,0.74,0.74,0.74,0.53,0.53,0.53,0.53,0.32,0.32,0.32,0.32]
+    y1 = [0.8,0.8,0.8,0.8,0.6,0.6,0.6,0.6,0.4,0.4,0.4,0.4,0.2,0.2,0.2,0.2]
+    y2 = [0.95,0.95,0.95,0.95,0.75,0.75,0.75,0.75,0.55,0.55,0.55,0.55,0.35,0.35,0.35,0.35]
  
     return x1, x2, y1, y2
 
-   
+def plotlatlogpre_to10(fig, data, lat, pre, ci, cmin, cmax, titlestr, x1=0.1, x2=0.9, y1=0.1, y2=0.9):
+    """
+    Plot a pressure versus latitude contour plot up to 0.01hPa.
+    """
+
+    # set up contour levels and color map
+    nlevs = (cmax-cmin)/ci + 1
+    clevs = np.arange(cmin, cmax+ci, ci)
+    mymap = mycolors.blue2red_cmap(nlevs)
+
+    plt.rcParams['font.size'] = '12'
+    
+    ax = fig.add_axes([x1, y1, x2-x1, y2-y1])
+
+    ax.contourf(lat,-1.*np.log10(pre), data, levels=clevs, cmap=mymap, extend='max')
+    ax.contour(lat,-1.*np.log10(pre), data, levels=clevs[ clevs != 0], colors='black', linewidths=0.5)
+    ax.set_ylim(-np.log10(1000.),-np.log10(10))
+    ax.set_yticks([-np.log10(1000),-np.log10(300),-np.log10(100),-np.log10(30),-np.log10(10)])
+    ax.set_yticklabels(['1000','300','100','30','10'])
+    ax.set_ylabel('Pressure (hPa)')
+    ax.set_title(titlestr, fontsize=16)
+    ax.set_xlabel('Latitude $^{\circ}$N')
+
+    return ax
+
+
+
+def plotlatlogpre_to1(fig, data, lat, pre, ci, cmin, cmax, titlestr, x1=0.1, x2=0.9, y1=0.1, y2=0.9):
+    """
+    Plot a pressure versus latitude contour plot up to 0.01hPa.
+    """
+
+    # set up contour levels and color map
+    nlevs = (cmax-cmin)/ci + 1
+    clevs = np.arange(cmin, cmax+ci, ci)
+    mymap = mycolors.blue2red_cmap(nlevs)
+
+    plt.rcParams['font.size'] = '12'
+    
+    ax = fig.add_axes([x1, y1, x2-x1, y2-y1])
+
+    ax.contourf(lat,-1.*np.log10(pre), data, levels=clevs, cmap=mymap, extend='max')
+    ax.contour(lat,-1.*np.log10(pre), data, levels=clevs, colors='black', linewidths=0.5)
+    ax.set_ylim(-np.log10(1000.),-np.log10(1))
+    ax.set_yticks([-np.log10(1000),-np.log10(100),-np.log10(10),-np.log10(1)])
+    ax.set_yticklabels(['1000','100','10','1'])
+    ax.set_ylabel('Pressure (hPa)')
+    ax.set_title(titlestr, fontsize=16)
+    ax.set_xlabel('Latitude $^{\circ}$N')
+
+    return ax
+
+  
 def plotlatlogpre_to0p01(fig, data, lat, pre, ci, cmin, cmax, titlestr, x1=0.1, x2=0.9, y1=0.1, y2=0.9):
     """
     Plot a pressure versus latitude contour plot up to 0.01hPa.
@@ -333,6 +385,75 @@ def plotposneghisto(fig, data, binmin, binmax, binint, titlestr, xtitlestr, x1, 
         ax.set_xticks(xticks)
         ax.set_xticklabels(xticknames)
 
+
+    return ax
+
+def plotlinetime_j2j(fig, data, x1, x2, y1, y2, titlestr, yrange=None, yticks=None, yticklabels=None, ytitle=None, linecolor=None):
+    """ plot a line plot.  Takes input from jan 1st to dec 31st and plots the line plot from 
+    July to June.
+    Input: fig = your figure 
+           data = a 365 element array containing data to be plotted
+           x1 = location of left edge of plot
+           x2 = location of right edge of plot
+           y1 = location of bottom edge of plot
+           y2 = location of top edge of plot
+           titlestr = plot title
+           yrange = optional range for y axis
+           yticks = optional ticks for y axis
+           yticklabels = optional tick labels for y axis
+           ytitle= optional title for y axis
+           linecolor = optional color of line
+    """
+
+    july1 = 181
+    dataplot = np.zeros([data.size])
+    dataplot[0:365-july1]=data[july1:365]
+    dataplot[365-july1:365]=data[0:july1]
+
+    ax = fig.add_axes([x1,y1,x2-x1,y2-y1])
+    monticks=[0,31,62,92,123,154,185,213,244,274,304,334,365]
+    monticks2=np.zeros(12)
+    for i in range(0,12):
+        monticks2[i] = monticks[i] + (monticks[i+1]-monticks[i])/2.
+
+    if (yrange):
+        ax.set_ylim(yrange)
+
+    if (yticks):
+        ax.set_yticks(yticks)
+
+    if (yticklabels):
+        ax.set_yticklabels(yticklabels, fontsize=14)
+
+    if (ytitle):
+        ax.set_ylabel(ytitle, fontsize=14)
+
+    ax.set_xlim([0,365])
+    ax.tick_params(which='minor', length=0)
+    ax.set_xticks(monticks)
+    ax.set_xticklabels([])
+    ax.set_xticks(monticks2, minor=True)
+    ax.set_xticklabels(['J','A','S','O','N','D','J','F','M','A','M','J'], minor=True, fontsize=14)
+    ax.set_title(titlestr, fontsize=16)
+
+    if (linecolor):
+        ax.plot(np.arange(0,365,1),dataplot, color=linecolor, linewidth=2)
+    else:
+        ax.plot(np.arange(0,365,1),dataplot, linewidth=2)
+
+    return ax
+
+def oplotlinetime_j2j(ax, data, linecolor=None):
+    """ over plot a line on a plot already created using plotlinetime_j2j"""
+    july1 = 181
+    dataplot = np.zeros([data.size])
+    dataplot[0:365-july1]=data[july1:365]
+    dataplot[365-july1:365]=data[0:july1]
+
+    if (linecolor):
+        ax.plot(np.arange(0,365,1),dataplot, color=linecolor, linewidth=2)
+    else:
+        ax.plot(np.arange(0,365,1),dataplot, linewidth=2)
 
     return ax
 
