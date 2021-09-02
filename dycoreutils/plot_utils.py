@@ -21,6 +21,43 @@ def get4by4coords():
  
     return x1, x2, y1, y2
 
+def plotlatlinearp(fig, data, lat, pre, ci, cmin, cmax, titlestr, x1=0.1, x2=0.9, y1=0.1, y2=0.9, cmap='blue2red'):
+    """
+    Plot a pressure versus latitude contour plot up to 0.01hPa.
+    """
+
+
+    # set up contour levels and color map
+    nlevs = (cmax-cmin)/ci + 1
+    clevs = np.arange(cmin, cmax+ci, ci)
+
+    if (cmap == 'blue2red'):
+        mymap = mycolors.blue2red_cmap(nlevs)
+
+    if (cmap == 'precip'):
+        mymap = mycolors.precip_cmap(nlevs)
+
+
+
+
+    plt.rcParams['font.size'] = '12'
+    
+    ax = fig.add_axes([x1, y1, x2-x1, y2-y1])
+
+    ax.contourf(lat,-1*pre, data, levels=clevs, cmap=mymap, extend='max')
+    ax.contour(lat,-1*pre, data, levels=clevs[ clevs != 0], colors='black', linewidths=0.5)
+    ax.set_ylim(-1000.,-np.log10(10))
+    ax.set_yticks([-1000,-800,-600,-400,-200,0])
+    ax.set_yticklabels(['1000','800','600','400','200','0'])
+    ax.set_ylabel('Pressure (hPa)')
+    ax.set_title(titlestr, fontsize=16)
+    ax.set_xlabel('Latitude $^{\circ}$N')
+
+    return ax
+
+
+
+
 def plotlatlogpre_to10(fig, data, lat, pre, ci, cmin, cmax, titlestr, x1=0.1, x2=0.9, y1=0.1, y2=0.9):
     """
     Plot a pressure versus latitude contour plot up to 0.01hPa.
@@ -48,7 +85,7 @@ def plotlatlogpre_to10(fig, data, lat, pre, ci, cmin, cmax, titlestr, x1=0.1, x2
 
 
 
-def plotlatlogpre_to1(fig, data, lat, pre, ci, cmin, cmax, titlestr, x1=0.1, x2=0.9, y1=0.1, y2=0.9):
+def plotlatlogpre_to1(fig, data, lat, pre, ci, cmin, cmax, titlestr, x1=0.1, x2=0.9, y1=0.1, y2=0.9, cmap='blue2red'):
     """
     Plot a pressure versus latitude contour plot up to 0.01hPa.
     """
@@ -56,6 +93,13 @@ def plotlatlogpre_to1(fig, data, lat, pre, ci, cmin, cmax, titlestr, x1=0.1, x2=
     # set up contour levels and color map
     nlevs = (cmax-cmin)/ci + 1
     clevs = np.arange(cmin, cmax+ci, ci)
+
+    if (cmap == 'blue2red'):
+        mymap = mycolors.blue2red_cmap(nlevs)
+
+    if (cmap == 'precip'):
+        mymap = mycolors.precip_cmap(nlevs)
+
     mymap = mycolors.blue2red_cmap(nlevs)
 
     plt.rcParams['font.size'] = '12'
@@ -74,7 +118,7 @@ def plotlatlogpre_to1(fig, data, lat, pre, ci, cmin, cmax, titlestr, x1=0.1, x2=
     return ax
 
   
-def plotlatlogpre_to0p01(fig, data, lat, pre, ci, cmin, cmax, titlestr, x1=0.1, x2=0.9, y1=0.1, y2=0.9):
+def plotlatlogpre_to0p01(fig, data, lat, pre, ci, cmin, cmax, titlestr, x1=0.1, x2=0.9, y1=0.1, y2=0.9, cmap='blue2red'):
     """
     Plot a pressure versus latitude contour plot up to 0.01hPa.
     """
@@ -82,7 +126,12 @@ def plotlatlogpre_to0p01(fig, data, lat, pre, ci, cmin, cmax, titlestr, x1=0.1, 
     # set up contour levels and color map
     nlevs = (cmax-cmin)/ci + 1
     clevs = np.arange(cmin, cmax+ci, ci)
-    mymap = mycolors.blue2red_cmap(nlevs)
+
+    if (cmap == 'blue2red'):
+        mymap = mycolors.blue2red_cmap(nlevs)
+
+    if (cmap == 'precip'):
+        mymap = mycolors.precip_cmap(nlevs)
 
     plt.rcParams['font.size'] = '12'
     
@@ -254,6 +303,59 @@ def plotddamp(fig, data, pre, expname, x1=None, x2=None, y1=None, y2=None, color
  
     return ax
 
+def plotprofile_linearp(fig, data, pre, expname, x1=None, x2=None, y1=None, y2=None, color=None, oplot=False, 
+                              ax=None, title=None, xtitle=None, xlim=None):
+    """
+    Plot a vertical profile of data from log(100) to log(0.01)
+    Inputs:
+        fig = the figure page
+        data = the pressure axis of the data
+        expname = the name of the experiemnt (for legend)
+        x1 = the bottom edge of the figure (in units of fractions of the page)
+        x2 = the right edge of the figure (in units of fraction of the page)
+        y1 = the bottom edge of the figure (in units of fractions of the page)
+        y2 = the top edge of the figure ( in units of fractions of the page)
+        oplot = if True, only over plot a line
+        ax = the figure axis (needed for overplotting
+        xtitle = the title of the x axis
+    """
+    # if overplotting, check for axis input
+    if (oplot and (not ax)):
+        print("This isn't going to work.  If overplotting, specify axis")
+        sys.exit()
+
+    plt.rcParams['font.size'] = '14'
+
+    if not oplot:
+        if (x1):
+            ax = fig.add_axes([x1, y1, x2-x1, y2-y1])
+        else:
+            ax = fig.add_axes()
+
+    ax.set_ylim(-1000,0)
+    ax.set_yticks([-1000,-800,-600,-400,-200,0])
+    ax.set_yticklabels(['1000','800','600','400','200','0'])
+    ax.set_ylabel('Pressure (hPa)', fontsize=16)
+
+    if (xtitle):
+        ax.set_xlabel(xtitle)
+  
+    if (title):
+        ax.set_title(title)
+
+    if (color):
+        ax.plot(np.array(data),-1*np.array(pre),linewidth=3,label=expname, color=color)
+    else:
+        ax.plot(np.array(data),-1.*np.array(pre),linewidth=3,label=expname)
+
+    if (xlim):
+        ax.set_xlim(xlim)
+
+    return ax
+
+
+
+
 def plotprofile_logp_100to0p01(fig, data, pre, expname, x1=None, x2=None, y1=None, y2=None, color=None, oplot=False, 
                               ax=None, title=None, xtitle=None, xlim=None):
     """
@@ -388,7 +490,7 @@ def plotposneghisto(fig, data, binmin, binmax, binint, titlestr, xtitlestr, x1, 
 
     return ax
 
-def plotlinetime_j2j(fig, data, x1, x2, y1, y2, titlestr, yrange=None, yticks=None, yticklabels=None, ytitle=None, linecolor=None):
+def plotlinetime_j2j(fig, data, x1, x2, y1, y2, titlestr, yrange=None, yticks=None, yticklabels=None, ytitle=None, linecolor=None, label=None):
     """ plot a line plot.  Takes input from jan 1st to dec 31st and plots the line plot from 
     July to June.
     Input: fig = your figure 
@@ -437,13 +539,13 @@ def plotlinetime_j2j(fig, data, x1, x2, y1, y2, titlestr, yrange=None, yticks=No
     ax.set_title(titlestr, fontsize=16)
 
     if (linecolor):
-        ax.plot(np.arange(0,365,1),dataplot, color=linecolor, linewidth=2)
+        ax.plot(np.arange(0,365,1),dataplot, color=linecolor, linewidth=2, label=label)
     else:
-        ax.plot(np.arange(0,365,1),dataplot, linewidth=2)
+        ax.plot(np.arange(0,365,1),dataplot, linewidth=2, label=label)
 
     return ax
 
-def oplotlinetime_j2j(ax, data, linecolor=None):
+def oplotlinetime_j2j(ax, data, linecolor=None, label=None):
     """ over plot a line on a plot already created using plotlinetime_j2j"""
     july1 = 181
     dataplot = np.zeros([data.size])
@@ -451,9 +553,9 @@ def oplotlinetime_j2j(ax, data, linecolor=None):
     dataplot[365-july1:365]=data[0:july1]
 
     if (linecolor):
-        ax.plot(np.arange(0,365,1),dataplot, color=linecolor, linewidth=2)
+        ax.plot(np.arange(0,365,1),dataplot, color=linecolor, linewidth=2, label=label)
     else:
-        ax.plot(np.arange(0,365,1),dataplot, linewidth=2)
+        ax.plot(np.arange(0,365,1),dataplot, linewidth=2, label=label)
 
     return ax
 
