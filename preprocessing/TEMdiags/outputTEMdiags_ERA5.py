@@ -12,9 +12,7 @@ import numpy as np
 from scipy import integrate
 
 # set experiment names to process
-#expname=[ "b.e21.B1850.f09_f09_mg17.L83_front2.001", "b.e21.B1850.f09_f09_mg17.L83_ogw2.001" ]
-#expname=[ "b.e21.B1850.f09_f09_mg17.L83_ogw3.001", "b.e21.B1850.f09_f09_mg17.L83_front3.001" ]
-expname=["f.cesm3_cam058_mom_b.FWscHIST.ne30_L58.001"]
+expname=[ "ERA5" ]
 #expname=[ "sponge5", "defaultsponge", "sponge5-marshian" ]
 
 # set basepath which contains the flux data
@@ -33,12 +31,12 @@ g0=9.80665
 
 for iexp in expname:
 
-    fpath=basepath+iexp+"/TEMdiags*.nc"
+    fpath=basepath+iexp+"/fluxes*.nc"
     #fpath=basepath+"TEMdiags*.nc"
     print(fpath)
     dat = xr.open_mfdataset(fpath, coords="minimal", join="override", decode_times=True)
+
     dat = dat.squeeze()
-#    dat = dat.rename({"ilev":"pre"})
 
     latrad = np.array((dat.lat/180.)*np.pi)
     f=2.*om*np.sin(latrad[:])
@@ -50,14 +48,16 @@ for iexp in expname:
     uvzm = np.array(dat.UVzm)
     uwzm = np.array(dat.UWzm)
     wzm = np.array(dat.Wzm)
-    pre = np.array(dat.pre)
+    pre = np.array(dat.level)
     #pre = np.array(dat.ilev)
     lat = np.array(dat.lat)
 
-    # !!! Isla 08/31/21 - I'm dividing the omega terms by 100 because
-    # I think I had a factor of 100 wrong in the conversion in my cheyenne scripts
+
+    #!!!! Isla 08/30/21 - I'm diving the w terms by 100 as I think they're in 
+    # hPa/s instead of Pa/s.
     #wzm = wzm/100.
     #uwzm = uwzm/100.
+
 
     npre = pre.size
     nlat = lat.size
@@ -158,15 +158,15 @@ for iexp in expname:
 #    utendvtem = utendvtem.rename({"ilev":"pre"})
 #    utendwtem = utendwtem.rename({"ilev":"pre"})    
 
-    uzm.to_netcdf(outdir+iexp+".nc")
-    epfy.to_netcdf(outdir+iexp+".nc", mode="a")
-    epfz.to_netcdf(outdir+iexp+".nc", mode="a")
-    vtem.to_netcdf(outdir+iexp+".nc", mode="a")
-    wtem.to_netcdf(outdir+iexp+".nc", mode="a")
-    psitem.to_netcdf(outdir+iexp+".nc", mode="a")
-    utendepfd.to_netcdf(outdir+iexp+".nc", mode="a")
-    utendvtem.to_netcdf(outdir+iexp+".nc", mode="a")
-    utendwtem.to_netcdf(outdir+iexp+".nc", mode="a")
+    uzm.to_netcdf(outdir+iexp+"new.nc")
+    epfy.to_netcdf(outdir+iexp+"new.nc", mode="a")
+    epfz.to_netcdf(outdir+iexp+"new.nc", mode="a")
+    vtem.to_netcdf(outdir+iexp+"new.nc", mode="a")
+    wtem.to_netcdf(outdir+iexp+"new.nc", mode="a")
+    psitem.to_netcdf(outdir+iexp+"new.nc", mode="a")
+    utendepfd.to_netcdf(outdir+iexp+"new.nc", mode="a")
+    utendvtem.to_netcdf(outdir+iexp+"new.nc", mode="a")
+    utendwtem.to_netcdf(outdir+iexp+"new.nc", mode="a")
 
 
 
