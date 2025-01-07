@@ -76,7 +76,7 @@ for iexp in expname:
     wzm = -1.*wzm*prearray*100./H
 
     # compute the latitudinal gradient of U
-    dudphi = (1./a)*np.gradient(uzm*np.cos(latradarray), latrad, axis=2)
+    dudphi = (1./(a*np.cos(latradarray)))*np.gradient(uzm*np.cos(latradarray), latrad, axis=2)
 
     # compute the vertical gradient of theta and u
     dthdp = np.gradient(thzm, pre*100.,axis=1)
